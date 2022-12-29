@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+
+#define endl '\n'
+#define ll long long
+#define f first
+#define s second
+#define pb push_back
+#define all(x) x.begin(), x.end()
+
+
+const int INF = 2e9;
+int n;
+bitset <32> k;
+vector <bitset <32> > arr;
+
+
+signed main() {
+    int k_int;
+    cin >> n >> k_int;
+    k = k_int;
+
+    map <int, int> mp;
+    map <int, int> mp2;
+
+    arr.resize(n);
+    int arr_int[n];
+    for (int i = 0, v; i < n; i++) {
+        cin >> v;
+        arr_int[i] = v;
+        arr[i] = v;
+        mp[v] = i + 1;
+    }
+    int m = 31;
+    for (; m >= 0 && !k[m]; m--);
+
+    set <int> st;
+    for (int i = 0; i < n; i++) {
+
+        for (int j = 0; j < m; j++) {
+            arr[i][j] = 0;
+        }
+        int v = (int)(arr[i].to_ulong());
+        st.insert(v);
+        mp2[v] = mp[arr_int[i]];
+
+    }
+    if (st.size() < 2) {
+        cout << -1;
+        return 0;
+    }
+    cout << st.size() << endl;
+    for (set<int>::iterator it = st.begin(); it != st.end(); it++) {
+        cout << mp2[(*it)] << ' ';
+    }
+}
