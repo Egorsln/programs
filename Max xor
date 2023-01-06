@@ -1,0 +1,87 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+
+#define endl '\n'
+#define ll long long
+#define f first
+#define s second
+#define pb push_back
+#define all(x) x.begin(), x.end()
+
+
+int brute(vector<int> a, vector<int> b) {
+    int ans = -1;
+    for (auto ua : a) {
+        for (auto ub : b) {
+            ans = max(ans, (ua ^ ub));
+        }
+    }
+    return ans;
+}
+
+
+int max_xor(vector <bitset<32> > a, vector <bitset<32> > b) {
+    int n = b.size();
+    bool bit[32][n];
+    for (int i = 0; i < 32; i++) {
+        for (int j = 0; j < n; j++) {
+            bit[i][j] = b[j][i];
+        }
+    }
+    int ans = -1;
+    for (auto bt : a) {
+        int begin_ = 0, end_ = n;
+
+        for (int i = 31; i >= 0; i--) {
+            auto it = lower_bound(bit[i] + begin_, bit[i] + end_, 1);
+
+            bool val;
+            if (bt[i] == 1)
+                val = (it == bit[i] + begin_);
+            else
+                val = (it != bit[i] + end_);
+
+            if (val)
+                begin_ = it - bit[i];
+            else
+                end_ = it - bit[i];;
+        }
+        int val_a = bt.to_ulong();
+        int val_b = b[begin_].to_ulong();
+        ans = max(ans, val_a ^ val_b);
+    }
+    return ans;
+}
+
+
+void print_bit(bitset<32> bt) {
+    for (int i = 0; i < 8; i++)
+        cout << bt[i];
+    cout << endl;
+}
+
+
+signed main() {
+    int na = 1000, nb = 1000;
+    vector <int> a(na), b(nb);
+    vector <bitset<32> > a_bit(na), b_bit(nb);
+
+    for (int i = 0; i < na; i++)
+        a[i] = int(rand() % 100000);
+    for (int i = 0; i < nb; i++)
+        b[i] = int(rand() % 100000);
+
+    sort(all(a));
+    sort(all(b));
+
+    for (int i = 0; i < na; i++)
+        a_bit[i] = a[i];
+    for (int i = 0; i < nb; i++)
+        b_bit[i] = b[i];
+
+    cout << max_xor(a_bit, b_bit) << endl;
+    cout << brute(a, b) << endl;
+}
+
