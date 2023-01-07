@@ -1,0 +1,138 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+
+#define endl '\n'
+#define ll long long
+#define f first
+#define s second
+#define pb push_back
+#define all(x) x.begin(), x.end()
+
+
+bool bit[32][200000];
+
+
+pair <int, int> max_xor(vector <bitset<32> > a, vector <bitset<32> > b) {
+    pair <int, int> ans = {-1, -1};
+
+    int n = b.size();
+    for (int i = 0; i < 32; i++) {
+        for (int j = 0; j < n; j++) {
+            bit[i][j] = b[j][i];
+        }
+    }
+    int max_val = -1;
+
+    for (auto bt : a) {
+        int begin_ = 0, end_ = n;
+
+        for (int i = 31; i >= 0; i--) {
+            auto it = lower_bound(bit[i] + begin_, bit[i] + end_, 1);
+
+            bool val;
+            if (bt[i] == 1)
+                val = (it == bit[i] + begin_);
+            else
+                val = (it != bit[i] + end_);
+
+            if (val)
+                begin_ = it - bit[i];
+            else
+                end_ = it - bit[i];;
+        }
+        int val_a = bt.to_ulong();
+        int val_b = b[begin_].to_ulong();
+
+        if (max_val < (val_a ^ val_b)) {
+            max_val = (val_a ^ val_b);
+            ans = {val_a, val_b};
+        }
+    }
+    return ans;
+}
+
+
+bool comp(bitset<32> a, bitset<32> b) {
+    return a.to_ulong() < b.to_ulong();
+}
+
+
+signed main() {
+    freopen("input.txt", "r", stdin);
+
+    int n, k_int;
+    cin >> n >> k_int;
+    bitset <32> k = k_int;
+    int m = 31;
+    for (; m >= 0; m--) {
+        if (k[m])
+            break;
+    }
+    map <int, vector<int>> mp_uniq;
+    map <int, int> mp_ind;
+
+    for (int ind = 0, v; ind < n; ind++) {
+        cin >> v;
+        mp_ind[v] = ind + 1;
+
+        bitset <32> bt = v;
+        for (int i = 0; i <= m; i++)
+            bt[i] = 0;
+        mp_uniq[int(bt.to_ulong())].pb(v);
+    }
+
+    if (k_int == 0) {
+        cout << n << endl;
+        for (int i = 1; i <= n; i++)
+            cout << i << ' ';
+        return 0;
+    }
+
+    vector <int> task_ans;
+    task_ans.reserve(n);
+
+    for (auto u_vec : mp_uniq) {
+        vector <bitset<32> > a0, a1;
+        map <int, int> turn;
+
+        for (auto u : u_vec.s) {
+            bitset<32> bt = u;
+            for (int i = m + 1; i < 32; i++)
+                bt[i] = 0;
+            if (bt[m] == 1)
+                a1.pb(bt);
+            else
+                a0.pb(bt);
+            turn[bt.to_ulong()] = u;
+        }
+        sort(all(a0), comp);
+        sort(all(a1), comp);
+
+        pair<int, int> res;
+        if (a0.empty() || a1.empty())
+            res = {-1, -1};
+        else
+            res = max_xor(a0, a1);
+
+        if ((res.f ^ res.s) < k_int)
+            res = {-1, -1};
+
+        if (res.f == -1) {
+            task_ans.pb(u_vec.s[0]);
+        }
+        else {
+            task_ans.pb(turn[res.f]);
+            task_ans.pb(turn[res.s]);
+        }
+    }
+    if (task_ans.size() < 2) {
+        cout << "-1";
+        return 0;
+    }
+    cout << task_ans.size() << endl;
+    for (auto u : task_ans) {
+        cout << mp_ind[u] << ' ';
+    }
+}
